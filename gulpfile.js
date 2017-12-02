@@ -13,90 +13,137 @@ const webpack = require('webpack-stream');
 const gutil = require('gulp-util');
 const sourcemaps = require('gulp-sourcemaps');
 
-const path = {
-  html: {
-    src: './src/pages/*.html',
-    dist: './public',
-    watch: './src/pages/**/*.html'
-  },
-  style: {
-    src: './src/common/*.styl',
-    dist: './public/css',
-    watch: ['./src/blocks/**/*.styl', './src/common/*.styl']
-  },
-  image: {
-    src: ['./src/img/**/*.jpg', './src/img/**/*.png', './src/img/**/*.svg'],
-    dist: './public/img'
-  },
-  fonts: {
-    src: ['./src/fonts/**/*'],
-    dist: './public/fonts'
-  }
+const config = require('./config/gulp.config');
+
+const html = () => (
+  gulp.src(config.html.src)
+  .pipe(rigger())
+  .pipe(rename({ dirname: '' }))
+  .pipe(gulp.dest(config.html.tmp))
+  .pipe(browserSync.stream())
+);
+
+const buildHtml = () => (
+  gulp.src(config.html.src)
+  .pipe(rigger())
+  .pipe(rename({ dirname: '' }))
+  .pipe(gulp.dest(config.html.build))
+);
+
+const styles = () => (
+  gulp.src(config.style.src)
+  .pipe(sourcemaps.init())
+  .pipe(stylus())
+  .pipe(autoprefixer())
+  .pipe(cleanCss())
+  .pipe(rename({
+    dirname: '',
+    suffix: '.min',
+  }))
+  .pipe(sourcemaps.write())
+  .pipe(gulp.dest(config.style.tmp))
+  .pipe(browserSync.stream())
+);
+
+const buildStyles = () => (
+  gulp.src(config.style.src)
+  .pipe(stylus())
+  .pipe(autoprefixer())
+  .pipe(cleanCss())
+  .pipe(rename({
+    dirname: '',
+    suffix: '.min',
+  }))
+  .pipe(gulp.dest(config.style.build))
+);
+
+const scripts = () => {
+  gulp.src('./src/common/index.js')
+  .pipe(webpack(require('./config/webpack.config.js')))
+  .pipe(gulp.dest('./.tmp/js'))
+  .pipe(browserSync.stream())
 };
 
-function buildHMTL() {
-  return gulp.src(path.html.src)
-    .pipe(rigger())
-    .pipe(rename({ dirname: '' }))
-    .pipe(gulp.dest(path.html.dist))
-    .pipe(browserSync.stream());
-}
+const buildScripts = () => {
+  gulp.src('./src/common/index.js')
+  .pipe(webpack(require('./config/webpack.prod.config.js')))
+  .pipe(gulp.dest('./build/js'))
+  .pipe(browserSync.stream())
+};
 
-function buildCSS() {
-  return gulp.src(path.style.src)
-    .pipe(sourcemaps.init())
-    .pipe(stylus())
-    .pipe(autoprefixer())
-    .pipe(cleanCss())
-    .pipe(rename({
-      dirname: '',
-      suffix: '.min',
-    }))
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest(path.style.dist))
-    .pipe(browserSync.stream());
-}
+const images = () => (
+  gulp.src(config.image.src)
+  .pipe(imagemin({
+    interlaced: true,
+    progressive: true,
+    svgoPlugins: [{ removeViewBox: false }]
+  }))
+  .pipe(gulp.dest(config.image.tmp))
+);
 
-function buildJS() {
-  gulp.src('./media/script/index.js')
-    .pipe(webpack(require('./webpack.config.js')))
-    .pipe(gulp.dest('./public/js'))
-    .pipe(browserSync.stream());
-}
+const buildImages = () => (
+  gulp.src(config.image.src)
+  .pipe(imagemin({
+    interlaced: true,
+    progressive: true,
+    svgoPlugins: [{ removeViewBox: false }]
+  }))
+  .pipe(gulp.dest(config.image.build))
+);
 
-function optimizeImages() {
-  return gulp.src(path.image.src)
-    .pipe(imagemin({
-      interlaced: true,
-      progressive: true,
-      svgoPlugins: [{ removeViewBox: false }]
-    }))
-    .pipe(gulp.dest(path.image.dist));
-}
+const fonts = () => (
+  gulp.src(config.fonts.src)
+  .pipe(gulp.dest(config.fonts.tmp))
+);
 
 const buildFonts = () => (
-  gulp.src(path.fonts.src)
-  .pipe(gulp.dest(path.fonts.dist))
+  gulp.src(config.fonts.src)
+  .pipe(gulp.dest(config.fonts.build))
 );
 
 function deploy() {
-  return gulp.src(`${path.html.dist}/**/*`)
+  return gulp.src(`${config.html.tmp}/**/*`)
     .pipe(sftp(require('./remote_config')));
 }
 
-gulp.task('build:html', buildHMTL);
-gulp.task('build:css', buildCSS);
-gulp.task('build:js', buildJS);
+gulp.task('html', html);
+gulp.task('styles', styles);
+gulp.task('scripts', scripts);
+gulp.task('fonts', fonts);
+gulp.task('images', images);
+
+gulp.task('build:html', buildHtml);
+gulp.task('build:styles', buildStyles);
+gulp.task('build:scripts', buildScripts);
 gulp.task('build:fonts', buildFonts);
-gulp.task('build:img', optimizeImages);
+gulp.task('build:images', buildImages);
+
 gulp.task('deploy', deploy);
 
-gulp.task('serve', ['build:img', 'build:html', 'build:css', 'build:fonts', 'build:js'], () => {
-  browserSync.init({ server: path.html.dist });
-  watch(path.image.src, optimizeImages);
-  watch(path.html.watch, buildHMTL);
-  watch(path.style.watch, buildCSS);
-  watch(path.fonts.src, buildFonts);
+gulp.task('serve', [
+  'html', 
+  'styles',
+  'scripts',
+  'fonts',
+  'images'
+], () => {
+  browserSync.init({ server: config.html.tmp });
+  watch(config.image.src, images);
+  watch(config.html.watch, html);
+  watch(config.style.watch, styles);
+  watch(config.fonts.src, fonts);
+});
+
+gulp.task('build', [
+  'build:html',
+  'build:styles',
+  'build:scripts',
+  'build:fonts',
+  'build:images'
+]);
+
+gulp.task('serve:build', ['build'], () => {
+  browserSync.init({ server: config.html.build });
 });
 
 gulp.task('default', ['serve']);

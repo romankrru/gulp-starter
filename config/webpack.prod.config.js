@@ -2,13 +2,12 @@ const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-  devtool: 'cheap-module-eval-source-map',
-  watch: true,
+  watch: false,
   entry: {
-    index: './src/common/index.js'
+    index: path.join(__dirname, '../src/common/index.js'),
   },
   output: {
-    path: path.resolve(__dirname, 'public'),
+    path: path.resolve(__dirname, 'build'),
     filename: '[name].bundle.js'
   },
   module: {
@@ -23,5 +22,6 @@ module.exports = {
       jQuery: "jquery",
       "window.jQuery": "jquery"
     }),
+    new webpack.optimize.UglifyJsPlugin()
   ]
 };
