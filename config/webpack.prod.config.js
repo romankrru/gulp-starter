@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
   watch: false,
   entry: {
-    index: path.join(__dirname, '../src/common/index.js'),
+    index: ["babel-polyfill", path.join(__dirname, '../src/common/index.js')],
   },
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -13,7 +13,8 @@ module.exports = {
   module: {
     loaders: [{
       test: /\.js$/,
-      loader: 'babel-loader'
+      loader: 'babel-loader',
+      exclude: /node_modules/
     }]
   },
   plugins: [
