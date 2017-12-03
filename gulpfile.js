@@ -68,8 +68,7 @@ const scripts = () => {
 const buildScripts = () => {
   gulp.src('./src/common/index.js')
     .pipe(webpack(webpackProdConfig))
-    .pipe(gulp.dest('./build/js'))
-    .pipe(browserSync.stream());
+    .pipe(gulp.dest('./build/js'));
 };
 
 const images = () => (
