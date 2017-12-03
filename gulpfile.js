@@ -12,6 +12,8 @@ const watch = require('gulp-watch');
 const webpack = require('webpack-stream');
 const gutil = require('gulp-util');
 const sourcemaps = require('gulp-sourcemaps');
+var del = require('del');
+const eslint = require('gulp-eslint');
 
 const config = require('./config/gulp.config');
 
@@ -101,10 +103,39 @@ const buildFonts = () => (
   .pipe(gulp.dest(config.fonts.build))
 );
 
+gulp.task('lint', () => {
+  // ESLint ignores files with "node_modules" paths. 
+  // So, it's best to have gulp ignore the directory as well. 
+  // Also, Be sure to return the stream from the task; 
+  // Otherwise, the task may end before the stream has finished. 
+  return gulp.src(['./src/**/*.js', '!node_modules/**'])
+    // eslint() attaches the lint output to the "eslint" property 
+    // of the file object so it can be used by other modules. 
+    .pipe(eslint())
+    // eslint.format() outputs the lint results to the console. 
+    // Alternatively use eslint.formatEach() (see Docs). 
+    .pipe(eslint.format())
+    // To have the process exit with an error code (1) on 
+    // lint error, return the stream and pipe to failAfterError last. 
+    .pipe(eslint.failAfterError());
+});
+
 function deploy() {
   return gulp.src(`${config.html.tmp}/**/*`)
     .pipe(sftp(require('./remote_config')));
 }
+
+gulp.task('deploy', deploy);
+
+gulp.task('clean:tmp', () => (
+  del.sync('.tmp')
+));
+
+gulp.task('clean:build', () => (
+  del.sync('build')
+));
+
+gulp.task('clean', ['clean:tmp', 'clean:build']);
 
 gulp.task('html', html);
 gulp.task('styles', styles);
@@ -118,9 +149,8 @@ gulp.task('build:scripts', buildScripts);
 gulp.task('build:fonts', buildFonts);
 gulp.task('build:images', buildImages);
 
-gulp.task('deploy', deploy);
-
 gulp.task('serve', [
+  'clean:tmp',
   'html', 
   'styles',
   'scripts',
@@ -135,6 +165,7 @@ gulp.task('serve', [
 });
 
 gulp.task('build', [
+  'clean:build',
   'build:html',
   'build:styles',
   'build:scripts',
