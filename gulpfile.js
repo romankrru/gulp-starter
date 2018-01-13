@@ -130,7 +130,7 @@ gulp.task('build:scripts', buildScripts);
 gulp.task('build:fonts', buildFonts);
 gulp.task('build:images', buildImages);
 
-gulp.task('serve', [
+gulp.task('develop', [
   'clean:tmp',
   'html',
   'styles',
@@ -154,7 +154,7 @@ gulp.task('build', [
   'build:images',
 ]);
 
-gulp.task('serve:build', ['build'], () => {
+gulp.task('serve', ['build'], () => {
   browserSync.init({ server: config.html.build });
 });
 
