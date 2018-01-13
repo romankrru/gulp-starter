@@ -35,6 +35,12 @@ const styles = () => (
   gulp.src(config.style.src)
     .pipe(sourcemaps.init())
     .pipe(stylus())
+    .on('error', (err) => {
+      browserSync.notify("Error! Can't compile styles. See console.", 7000);
+      console.log('Error:');
+      console.log('===============================');
+      console.log(err);
+    })
     .pipe(autoprefixer())
     .pipe(cleanCss())
     .pipe(rename({
