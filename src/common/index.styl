@@ -1,12 +1,42 @@
-@font-face 
-  font-family: 'lemon_tuesdayregular'
-  src: url('../fonts/lemon_tuesday-webfont.woff2') format('woff2'), url('../fonts/lemon_tuesday-webfont.woff') format('woff')
-  font-weight: normal
-  font-style: normal
+@import url('https://fonts.googleapis.com/css?family=Muli');
 
 body
+  display flex
+  flex-direction column
+  justify-content center
+  align-items center
+  min-height 100vh
   margin 0
   padding 0
-  font-family 'lemon_tuesdayregular'
+
+  font-family 'Muli'
+  color #fff
+
+  background-image url('../img/bg-1.jpg')
+  background-size cover
+  background-position center
+  background-repeat no-repeat
+
+h1
+  margin 0
+
+  font-size 72px
+
+.should-animate
+  visibility hidden
+
+.animated
+  animation-name fadeInUp
+  animation-duration 1.8s
+
+@keyframes fadeInUp
+  from
+    opacity 0
+    transform translateY(100px)
+  
+  to
+    opacity 1
+    transform translateY(0)
 
 @import '../blocks/header/header.styl'
+

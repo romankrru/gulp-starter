@@ -1,9 +1,15 @@
-const logThis = (word) => {
-  [...word].forEach((letter, i) => {
-    setTimeout(() => {
-      console.log(letter);
-    }, i * 200);
+const $animatedEls = document.querySelectorAll('.should-animate');
+
+const animate = () => {
+  $animatedEls.forEach((item) => {
+    const $el = item;
+    $el.classList.remove('should-animate');
+    $el.classList.add('animated');
   });
 };
 
-logThis('Happy Codding');
+if (document.hasFocus()) {
+  animate();
+}
+
+window.addEventListener('focus', animate);
