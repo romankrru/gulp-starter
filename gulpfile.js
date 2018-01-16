@@ -16,6 +16,8 @@ const config = require('./config/gulp.config');
 const webpackDevConfig = require('./config/webpack.config.js');
 const webpackProdConfig = require('./config/webpack.prod.config.js');
 
+/* eslint-disable */
+
 const html = () => (
   gulp.src(config.html.src)
     .pipe(rigger())
@@ -36,7 +38,11 @@ const styles = () => (
     .pipe(sourcemaps.init())
     .pipe(stylus())
     .on('error', (err) => {
-      browserSync.notify("Error! Can't compile styles. See console.", 7000);
+      browserSync.sockets.emit('fullscreen:message', {
+        title: "Can't compile styles:",
+        body: 'Fix the error and reload the page. \n \n' + err.message,
+      });
+
       console.log('Error:');
       console.log('===============================');
       console.log(err);
@@ -144,7 +150,10 @@ gulp.task('develop', [
   'fonts',
   'images',
 ], () => {
-  browserSync.init({ server: config.html.tmp });
+  browserSync.init({
+    server: config.html.tmp,
+    plugins: ['bs-pretty-message'],
+  });
   watch(config.image.src, images);
   watch(config.html.watch, html);
   watch(config.style.watch, styles);
@@ -164,4 +173,4 @@ gulp.task('serve', ['build'], () => {
   browserSync.init({ server: config.html.build });
 });
 
-gulp.task('default', ['serve']);
+gulp.task('default', ['develop']);
