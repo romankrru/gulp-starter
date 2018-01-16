@@ -9,20 +9,20 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, '.tmp'),
-    filename: '[name].bundle.js'
+    filename: '[name].bundle.js',
   },
   module: {
     loaders: [{
       test: /\.js$/,
       loader: 'babel-loader',
-      exclude: /node_modules/
-    }]
+      exclude: /node_modules/,
+    }],
   },
   plugins: [
     new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-      "window.jQuery": "jquery"
+      $: 'jquery',
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
     }),
-  ]
+  ],
 };

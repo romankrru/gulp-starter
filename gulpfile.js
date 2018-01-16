@@ -16,8 +16,6 @@ const config = require('./config/gulp.config');
 const webpackDevConfig = require('./config/webpack.config.js');
 const webpackProdConfig = require('./config/webpack.prod.config.js');
 
-/* eslint-disable */
-
 const html = () => (
   gulp.src(config.html.src)
     .pipe(rigger())
@@ -40,7 +38,7 @@ const styles = () => (
     .on('error', (err) => {
       browserSync.sockets.emit('fullscreen:message', {
         title: "Can't compile styles:",
-        body: 'Fix the error and reload the page. \n \n' + err.message,
+        body: `Fix the error and reload the page. \n \n${err.message}`,
       });
 
       console.log('Error:');
