@@ -1,11 +1,9 @@
-/* eslint-disable */
+const logThis = (word) => {
+  [...word].forEach((letter, i) => {
+    setTimeout(() => {
+      console.log(letter);
+    }, i * 200);
+  });
+};
 
-console.log('hello');
-
-const arr = [1, 2, 3];
-
-console.log(...arr);
-
-function allAdd() {
-  return Array.from(arguments).map(a => a + 2);
-}
+logThis('Happy Codding');
