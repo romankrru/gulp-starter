@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const browserSync = require('browser-sync').create();
 const gulp = require('gulp');
 const autoprefixer = require('gulp-autoprefixer');
